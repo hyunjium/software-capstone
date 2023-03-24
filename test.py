@@ -53,33 +53,30 @@ time.sleep(2)
 
 #더보기 클릭
 look_more = browser.find_element(By.CSS_SELECTOR, "#review > li.list-group-item.btn-more > a")
-'''
 while True:
     try:
         look_more.click()
-        time.sleep(0.3)
+        time.sleep(0.5)
     except:
         break
-'''
-look_more.click()
 
 #리뷰 메뉴들 list 안에 가져오기
 time.sleep(2)
-star_menu = soup.find_all("div", attrs={"ng-click":"show_review_menu($event)"})
+star_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
 time.sleep(2)
 all=[]
 for name in star_menu:
     star_list=[]
-    star_list.append(name.get_text())
+    star_list.append(name.text)
     all.append(star_list)
 
 #전체 별점 가져오기
 time.sleep(2)
-star_num = soup.find_all("span", attrs={"class":"points ng-binding"})
+star_num = browser.find_elements(By.CSS_SELECTOR,'.points.ng-binding')
 time.sleep(2)
 rate=[]
 for star_rate in star_num:
-    rate.append(star_rate.get_text())
+    rate.append(star_rate.text)
 
 #맛 별점만 선별
 i=0
@@ -94,18 +91,8 @@ for if_menu in menu_dict:
         else:
             menu_dict[if_menu].append('0')
 
+#엑셀로 출력
 time.sleep(2)
 df = pd.DataFrame(menu_dict)
 file_name = 'test_sheet.xlsx'
 df.to_excel(file_name)
-
-
-
-
-
-
-#메뉴 엑셀로 출력
-#df = pd.DataFrame(list(menu_dict.keys(())),colums = ['menu','star'])
-#print(df)
-#print(len(menu_dict))
-#df.to_excel('D:/현지꺼/경희대 자료/소융캡디/mac_menu.xlsx', sheet_name='맥도날드')
