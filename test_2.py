@@ -5,7 +5,6 @@ import time
 from bs4 import BeautifulSoup
 import pandas as pd
 import openpyxl
-import re
 
 browser = webdriver.Chrome()
 time.sleep(2)
@@ -25,7 +24,7 @@ time.sleep(2)
 search = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.hidden-xs.menu-search > a")
 search.click()
 search_word = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.main-search > form > div > input")
-search_word.send_keys("시루몽")
+search_word.send_keys("맥도날드")
 search_word.send_keys(Keys.ENTER)
 time.sleep(2)
 click_mac = browser.find_element(By.CSS_SELECTOR, "#content > div > div:nth-child(5) > div > div > div > div")
@@ -34,7 +33,6 @@ time.sleep(2)
 
 soup = BeautifulSoup(browser.page_source, "lxml")
 
-'''
 #맥도날드 메뉴 전부 가져와서 list에 넣기
 menuz = soup.find_all("div", attrs={"class":"menu-name ng-binding"})
 menu_list = []
@@ -47,8 +45,8 @@ for menu in menuz:
 menu_dict = {}
 for menu_z in menu_list:
     menu_dict[menu_z] = []
-'''
-#리뷰 카테고리 클릭
+
+#별점 카테고리 클릭
 star_sec = browser.find_element(By.CSS_SELECTOR, "#content > div.restaurant-detail.row.ng-scope > div.col-sm-8 > ul > li:nth-child(2) > a")
 star_sec.click()
 time.sleep(2)
@@ -58,39 +56,19 @@ look_more = browser.find_element(By.CSS_SELECTOR, "#review > li.list-group-item.
 while True:
     try:
         look_more.click()
-        time.sleep(1)
+        time.sleep(0.5)
     except:
         break
 
-#리뷰 메뉴들 ,로 잘라서 list 안에 넣기
+#리뷰 메뉴들 list 안에 가져오기
 time.sleep(2)
 star_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
 time.sleep(2)
-print("리뷰개수=",len(star_menu))
-menu_list=[]
-menu_dict={}
+all=[]
 for name in star_menu:
-    menu_one_person=[]
-    sp_1st = name.text.split(',')
-    #/있을 경우 앞의 메뉴만, 없을 경우 전체 메뉴 list에 넣기
-    for one_menu in sp_1st:
-        if '/' in one_menu:
-            front_menu=one_menu[:one_menu.find('/')]
-            menu_one_person.append(front_menu)
-            if front_menu not in menu_dict:
-                menu_dict[front_menu]=[]
-        else:
-            menu_one_person.append(one_menu)
-            if one_menu not in menu_dict:
-                menu_dict[one_menu]=[]
-    menu_list.append(menu_one_person)
-print("메뉴개수=",len(menu_dict))
-
-
-print(menu_list)
-print(menu_dict)
-
-'''
+    star_list=[]
+    star_list.append(name.text)
+    all.append(star_list)
 
 #전체 별점 가져오기
 time.sleep(2)
@@ -100,41 +78,25 @@ rate=[]
 for star_rate in star_num:
     rate.append(star_rate.text)
 
-#맛 별점만 선별해서 각 리뷰에 맞춤 
+#맛 별점만 선별
 i=0
 for num in range(3,len(rate),3):
-    menu_list[i].append(rate[num])
+    all[i].append(rate[num])
     i+=1
 
-#menu_dict의 메뉴와 리뷰가 동일할 시 별점
-each_review_num=0
-menu_dict_num=0
-for each_review in menu_list:
-    each_review[each_review_num] == menu_dict[menu_dict_num]
-    for review_menu in each_review:
-        for all_menu in menu_dict:
-            if review_menu == all_menu:
-                menu_dict[all_menu].append(each_review[len(each_review)-1])
-            else:
-                menu_dict[all_menu].append('0')
-'''
-
-
-
-'''
 for if_menu in menu_dict:
     for if_star_menu in all:
         if if_menu in if_star_menu[0]:
             menu_dict[if_menu].append(if_star_menu[1])
         else:
             menu_dict[if_menu].append('0')
-            '''
 
-'''
 #엑셀로 출력
 time.sleep(2)
 df = pd.DataFrame(menu_dict)
 file_name = 'test_sheet.xlsx'
 df.to_excel(file_name)
 
-'''
+#,로 자르고 /있으면 앞메뉴가져오기.
+# /없으면 전체 가져오기.
+# 리뷰 많은 중국집이나 패턴 간단한것 4개 
