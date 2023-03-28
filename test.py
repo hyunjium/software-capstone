@@ -77,6 +77,7 @@ for name in star_menu:
         if '/' in one_menu:
             front_menu=one_menu[:one_menu.find('/')]
             menu_one_person.append(front_menu)
+            #안겹치는 메뉴 dict key에 추가
             if front_menu not in menu_dict:
                 menu_dict[front_menu]=[]
         else:
@@ -85,12 +86,6 @@ for name in star_menu:
                 menu_dict[one_menu]=[]
     menu_list.append(menu_one_person)
 print("메뉴개수=",len(menu_dict))
-
-
-print(menu_list)
-print(menu_dict)
-
-'''
 
 #전체 별점 가져오기
 time.sleep(2)
@@ -106,22 +101,25 @@ for num in range(3,len(rate),3):
     menu_list[i].append(rate[num])
     i+=1
 
-#menu_dict의 메뉴와 리뷰가 동일할 시 별점
-each_review_num=0
-menu_dict_num=0
+
+person = {"bob":19, "anna":15, "bob":20}
+print(person)
+
+
+'''
+#menu_dict의 key메뉴와 menu_list의 메뉴가 동일할 시 별점
 for each_review in menu_list:
-    each_review[each_review_num] == menu_dict[menu_dict_num]
-    for review_menu in each_review:
-        for all_menu in menu_dict:
-            if review_menu == all_menu:
-                menu_dict[all_menu].append(each_review[len(each_review)-1])
-            else:
-                menu_dict[all_menu].append('0')
-'''
+    for each_review_menu in each_review:
+        for each_menu_in_dict in menu_dict:
+            if each_review_menu == each_menu_in_dict:
+                menu_dict[each_menu_in_dict].append(each_review[len(each_review)-1])
+            #else:
+               # menu_dict[each_menu_in_dict].append('0')
 
 
 
-'''
+
+
 for if_menu in menu_dict:
     for if_star_menu in all:
         if if_menu in if_star_menu[0]:
