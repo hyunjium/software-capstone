@@ -62,30 +62,11 @@ while True:
     except:
         break
 
-#리뷰 메뉴들 ,로 잘라서 list 안에 넣기
+#리뷰 메뉴들 가져오기 ,로 잘라서 list 안에 넣기
 time.sleep(2)
 star_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
 time.sleep(2)
 print("리뷰개수=",len(star_menu))
-menu_list=[]
-menu_dict={}
-for name in star_menu:
-    menu_one_person=[]
-    sp_1st = name.text.split(',')
-    #/있을 경우 앞의 메뉴만, 없을 경우 전체 메뉴 list에 넣기
-    for one_menu in sp_1st:
-        if '/' in one_menu:
-            front_menu=one_menu[:one_menu.find('/')]
-            menu_one_person.append(front_menu)
-            #안겹치는 메뉴 dict key에 추가
-            if front_menu not in menu_dict:
-                menu_dict[front_menu]=[]
-        else:
-            menu_one_person.append(one_menu)
-            if one_menu not in menu_dict:
-                menu_dict[one_menu]=[]
-    menu_list.append(menu_one_person)
-print("메뉴개수=",len(menu_dict))
 
 #전체 별점 가져오기
 time.sleep(2)
@@ -95,6 +76,44 @@ rate=[]
 for star_rate in star_num:
     rate.append(star_rate.text)
 
+#리뷰들 ,로 잘라서 list 안에 넣기
+menu_list=[]
+menu_dict={}
+i=3
+for name in star_menu:
+    menu_one_person=[]
+    sp_1st = name.text.split(',')
+    #/있을 경우 앞의 메뉴만, 없을 경우 전체 메뉴 list에 넣기
+    for one_menu in sp_1st:
+        if '/' in one_menu:
+            front_menu=one_menu[:one_menu.find('/')]
+            menu_one_person.append(front_menu)
+            #메뉴 dict에 추가 및 별점 추가
+            if front_menu not in menu_dict:
+                menu_dict[front_menu]=[rate[i]]
+            else:
+                menu_dict[front_menu].append(rate[i])
+        else:
+            menu_one_person.append(one_menu)
+            if one_menu not in menu_dict:
+                menu_dict[one_menu]=[rate[i]]
+            else:
+                menu_dict[one_menu].append(rate[i])
+    menu_list.append(menu_one_person)
+    i+=3
+print("메뉴개수=",len(menu_dict))
+
+#별점 없는 칸 0으로 채우기
+for number in menu_dict:
+    left = len(star_menu) - len(menu_dict[number])
+    for zero in range(0,left):
+        menu_dict[number].append('0')
+
+print(menu_list)
+print(menu_dict)
+
+
+'''
 #맛 별점만 선별해서 각 리뷰에 맞춤 
 i=0
 for num in range(3,len(rate),3):
@@ -102,11 +121,7 @@ for num in range(3,len(rate),3):
     i+=1
 
 
-person = {"bob":19, "anna":15, "bob":20}
-print(person)
 
-
-'''
 #menu_dict의 key메뉴와 menu_list의 메뉴가 동일할 시 별점
 for each_review in menu_list:
     for each_review_menu in each_review:
@@ -128,11 +143,9 @@ for if_menu in menu_dict:
             menu_dict[if_menu].append('0')
             '''
 
-'''
+
 #엑셀로 출력
 time.sleep(2)
 df = pd.DataFrame(menu_dict)
 file_name = 'test_sheet.xlsx'
 df.to_excel(file_name)
-
-'''
