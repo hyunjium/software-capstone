@@ -25,7 +25,7 @@ time.sleep(2)
 search = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.hidden-xs.menu-search > a")
 search.click()
 search_word = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.main-search > form > div > input")
-search_word.send_keys("시루몽")
+search_word.send_keys("강릉동화가든짬뽕순두부")
 search_word.send_keys(Keys.ENTER)
 time.sleep(2)
 click_mac = browser.find_element(By.CSS_SELECTOR, "#content > div > div:nth-child(5) > div > div > div > div")
@@ -105,12 +105,12 @@ print("메뉴개수=",len(menu_dict))
 
 #별점 없는 칸 0으로 채우기
 for number in menu_dict:
-    left = len(star_menu) - len(menu_dict[number])
+    left = int(len(star_menu)/2) - len(menu_dict[number])
     for zero in range(0,left):
         menu_dict[number].append('0')
 
-print(menu_list)
-print(menu_dict)
+#print(menu_list)
+#print(menu_dict)
 
 
 '''
@@ -147,5 +147,5 @@ for if_menu in menu_dict:
 #엑셀로 출력
 time.sleep(2)
 df = pd.DataFrame(menu_dict)
-file_name = 'test_sheet.xlsx'
+file_name = '강릉동화가든짬뽕순두부_맛.xlsx'
 df.to_excel(file_name)
