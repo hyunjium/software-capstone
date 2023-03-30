@@ -65,16 +65,19 @@ while True:
 #리뷰 메뉴들 가져오기 ,로 잘라서 list 안에 넣기
 time.sleep(2)
 star_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
-time.sleep(2)
+#time.sleep(2)
 print("리뷰개수=",len(star_menu))
 
 #전체 별점 가져오기
 time.sleep(2)
 star_num = browser.find_elements(By.CSS_SELECTOR,'.points.ng-binding')
-time.sleep(2)
+#time.sleep(2)
 rate=[]
 for star_rate in star_num:
-    rate.append(star_rate.text)
+    if '' == star_rate.text:
+        rate.append('None')
+    else:
+        rate.append(float(star_rate.text))
 
 #리뷰들 ,로 잘라서 list 안에 넣기
 menu_list=[]
@@ -103,11 +106,11 @@ for name in star_menu:
     i+=3
 print("메뉴개수=",len(menu_dict))
 
-#별점 없는 칸 0으로 채우기
+#별점 없는 칸 'None'으로 채우기
 for number in menu_dict:
     left = int(len(star_menu)/2) - len(menu_dict[number])
     for zero in range(0,left):
-        menu_dict[number].append('0')
+        menu_dict[number].append('None')
 
 #print(menu_list)
 #print(menu_dict)
@@ -145,7 +148,7 @@ for if_menu in menu_dict:
 
 
 #엑셀로 출력
-time.sleep(2)
+#time.sleep(2)
 df = pd.DataFrame(menu_dict)
 file_name = '강릉동화가든짬뽕순두부_맛.xlsx'
 df.to_excel(file_name)
