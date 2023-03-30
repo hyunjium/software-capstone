@@ -1,12 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.select import Select
 import time
 from bs4 import BeautifulSoup
 import pandas as pd
-from openpyxl import Workbook
-import re
+import pickle
 
 browser = webdriver.Chrome()
 time.sleep(2)
@@ -26,7 +24,7 @@ time.sleep(2)
 search = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.hidden-xs.menu-search > a")
 search.click()
 search_word = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.main-search > form > div > input")
-search_word.send_keys("커피나무")
+search_word.send_keys("강릉동화가든짬뽕순두부")
 search_word.send_keys(Keys.ENTER)
 time.sleep(2)
 click_mac = browser.find_element(By.CSS_SELECTOR, "#content > div > div:nth-child(5) > div > div > div > div")
@@ -80,13 +78,19 @@ for each_menu in review_menu:
 review_star = browser.find_elements(By.CSS_SELECTOR,'.points.ng-binding')
 review_num = 0
 for taste_num in range(3,len(review_star),3):
-    review[review_num]['taste'] = review_star[taste_num].text
+    if '' == review_star[taste_num].text:
+        review[review_num]['taste'] = 'None'
+    else:
+        review[review_num]['taste'] = int(review_star[taste_num].text)
     review_num+=1
 
 #리뷰 양 별점 dict에 넣기
 review_num = 0
 for quantity_num in range(4,len(review_star),3):
-    review[review_num]['quantity'] = review_star[quantity_num].text
+    if '' == review_star[quantity_num].text:
+        review[review_num]['quantity'] = 'None'
+    else:
+        review[review_num]['quantity'] = int(review_star[quantity_num].text)
     review_num+=1
 
 #리뷰 평균 별점 dict에 넣기
@@ -97,9 +101,14 @@ for i in avr_review_star:
     review[review_num]['average'] = len(each_star)
     review_num+=1
 
+#pickle로 review list 저장
+with open("강릉동화가든짬뽕순두부.pickle","wb") as fw:
+    pickle.dump(review, fw)
+
+
 '''
 #엑셀로 출력
-df = pd.DataFrame(menu_dict)
-file_name = '카페온지.xlsx'
+df = pd.DataFrame(review)
+file_name = 'ss.xlsx'
 df.to_excel(file_name)
 '''
