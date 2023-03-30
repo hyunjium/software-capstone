@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 from bs4 import BeautifulSoup
 import pandas as pd
-import openpyxl
+from openpyxl import Workbook
 import re
 
 browser = webdriver.Chrome()
@@ -21,11 +21,11 @@ school_add = browser.find_element(By.CSS_SELECTOR, "#search > div > form > ul > 
 school_add.click()
 time.sleep(2)
 
-#맥도날드 검색
+#가게 검색
 search = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.hidden-xs.menu-search > a")
 search.click()
 search_word = browser.find_element(By.CSS_SELECTOR, "#category > ul > li.main-search > form > div > input")
-search_word.send_keys("강릉동화가든짬뽕순두부")
+search_word.send_keys("커피나무")
 search_word.send_keys(Keys.ENTER)
 time.sleep(2)
 click_mac = browser.find_element(By.CSS_SELECTOR, "#content > div > div:nth-child(5) > div > div > div > div")
@@ -34,20 +34,6 @@ time.sleep(2)
 
 soup = BeautifulSoup(browser.page_source, "lxml")
 
-'''
-#맥도날드 메뉴 전부 가져와서 list에 넣기
-menuz = soup.find_all("div", attrs={"class":"menu-name ng-binding"})
-menu_list = []
-for menu in menuz:
-    menu_name = menu.get_text()
-    if menu_name not in menu_list:
-        menu_list.append(menu_name)
-
-#메뉴 dict로 만들기
-menu_dict = {}
-for menu_z in menu_list:
-    menu_dict[menu_z] = []
-'''
 #리뷰 카테고리 클릭
 star_sec = browser.find_element(By.CSS_SELECTOR, "#content > div.restaurant-detail.row.ng-scope > div.col-sm-8 > ul > li:nth-child(2) > a")
 star_sec.click()
@@ -58,26 +44,61 @@ look_more = browser.find_element(By.CSS_SELECTOR, "#review > li.list-group-item.
 while True:
     try:
         look_more.click()
-        time.sleep(1)
+        time.sleep(3)
     except:
         break
 
-#리뷰 메뉴들 가져오기 ,로 잘라서 list 안에 넣기
-time.sleep(2)
-star_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
-#time.sleep(2)
-print("리뷰개수=",len(star_menu))
+review = []
 
-#전체 별점 가져오기
+#리뷰 날짜들 review list에 dict로 넣기
+review_date = browser.find_elements(By.CSS_SELECTOR,'.review-time.ng-binding')
+for each_date in review_date:
+    review_dict = {}
+    review_dict['date'] = each_date.text
+    review.append(review_dict)
+
+#리뷰 메뉴들 가져오기
+review_menu = browser.find_elements(By.CSS_SELECTOR,'.order-items.default.ng-binding')
+print("리뷰개수=",len(review_menu))
+num = 0
+for each_menu in review_menu:
+    menu_one_person=[]
+    sp = each_menu.text.split(',')
+    #/있을 경우 앞의 메뉴만, 없을 경우 전체 메뉴 list에 넣기
+    for one_menu in sp:
+        if '/' in one_menu:
+            front_menu=one_menu[:one_menu.find('/')]
+            menu_one_person.append(front_menu)
+        else:
+            menu_one_person.append(one_menu)
+    #각 사람의 리뷰들 dict에 넣기
+    review[num]['order'] = menu_one_person
+    num+=1
+
+#리뷰 맛 별점 dict에 넣기
+review_star = browser.find_elements(By.CSS_SELECTOR,'.points.ng-binding')
+review_num = 0
+for taste_num in range(3,len(review_star),3):
+    review[review_num]['taste'] = review_star[taste_num].text
+    review_num+=1
+
+#리뷰 양 별점 dict에 넣기
+review_num = 0
+for quantity_num in range(4,len(review_star),3):
+    review[review_num]['quantity'] = review_star[quantity_num].text
+    review_num+=1
+    
+print(review)
+
+
+
+'''
+#전체 별점 가져와서 list에 넣기
 time.sleep(2)
 star_num = browser.find_elements(By.CSS_SELECTOR,'.points.ng-binding')
-#time.sleep(2)
 rate=[]
 for star_rate in star_num:
-    if '' == star_rate.text:
-        rate.append('None')
-    else:
-        rate.append(float(star_rate.text))
+    rate.append(star_rate.text)
 
 #리뷰들 ,로 잘라서 list 안에 넣기
 menu_list=[]
@@ -111,10 +132,7 @@ for number in menu_dict:
     left = int(len(star_menu)/2) - len(menu_dict[number])
     for zero in range(0,left):
         menu_dict[number].append('None')
-
-#print(menu_list)
-#print(menu_dict)
-
+'''
 
 '''
 #맛 별점만 선별해서 각 리뷰에 맞춤 
@@ -122,7 +140,6 @@ i=0
 for num in range(3,len(rate),3):
     menu_list[i].append(rate[num])
     i+=1
-
 
 
 #menu_dict의 key메뉴와 menu_list의 메뉴가 동일할 시 별점
@@ -135,9 +152,6 @@ for each_review in menu_list:
                # menu_dict[each_menu_in_dict].append('0')
 
 
-
-
-
 for if_menu in menu_dict:
     for if_star_menu in all:
         if if_menu in if_star_menu[0]:
@@ -145,10 +159,9 @@ for if_menu in menu_dict:
         else:
             menu_dict[if_menu].append('0')
             '''
-
-
+'''
 #엑셀로 출력
-#time.sleep(2)
 df = pd.DataFrame(menu_dict)
-file_name = '강릉동화가든짬뽕순두부_맛.xlsx'
+file_name = '카페온지.xlsx'
 df.to_excel(file_name)
+'''
