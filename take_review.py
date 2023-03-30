@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 from bs4 import BeautifulSoup
-import pandas as pd
 import pickle
 
 browser = webdriver.Chrome()
@@ -104,11 +103,3 @@ for i in avr_review_star:
 #pickle로 review list 저장
 with open("강릉동화가든짬뽕순두부.pickle","wb") as fw:
     pickle.dump(review, fw)
-
-
-'''
-#엑셀로 출력
-df = pd.DataFrame(review)
-file_name = 'ss.xlsx'
-df.to_excel(file_name)
-'''
