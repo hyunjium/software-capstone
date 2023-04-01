@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 
+
 #pickle list로 가져와서 dataframe으로 변환
 with open("강릉동화가든짬뽕순두부.pickle","rb") as fr:
     list = pickle.load(fr)
@@ -20,20 +21,34 @@ for review in reviews['order']:
         menuz.add(menu)
 
 #set의 메뉴들을 key로 가지고 있는 'None' dict 만들기
-menu_dict = {}
+taste_dict = {}
+quantity_dict = {}
+average_dict = {}
 for each_menu in menuz:
-    menu_dict[each_menu] = 'None'
+    taste_dict[each_menu] = 'None'
+    quantity_dict[each_menu] = 'None'
+    average_dict[each_menu] = 'None'
 
-#메뉴별 '맛' 별점 추가
-df = pd.DataFrame(data={}, columns=menu_dict.keys())
+#메뉴별 '맛','양','평균' 별점 추가
+taste_df = pd.DataFrame(data={}, columns=taste_dict.keys())
+quantity_df = pd.DataFrame(data={}, columns=quantity_dict.keys())
+average_df = pd.DataFrame(data={}, columns=average_dict.keys())
 for i in range(len(reviews)):
-    order_dict = menu_dict.copy()
+    order_dict_taste = taste_dict.copy()
+    order_dict_quantity = quantity_dict.copy()
+    order_dict_average = average_dict.copy()
     for order in reviews.loc[i]['order']:
-        order_dict[order] = reviews.loc[i]['taste']
-    df = df.append(order_dict, ignore_index=True)
-
+        order_dict_taste[order] = reviews.loc[i]['taste']
+        order_dict_quantity[order] = reviews.loc[i]['quantity']
+        order_dict_average[order] = reviews.loc[i]['average']
+    taste_df = taste_df.append(order_dict_taste, ignore_index=True)
+    quantity_df = quantity_df.append(order_dict_quantity, ignore_index=True)
+    average_df = average_df.append(order_dict_average, ignore_index=True)
 
 
 #엑셀로 출력
-file_name = '강릉동화가든짬뽕순두부_정리.xlsx'
-df.to_excel(file_name)
+writer = pd.ExcelWriter('강릉동화가든짬뽕순두부_정리.xlsx')
+taste_df.to_excel(writer, sheet_name="맛")
+quantity_df.to_excel(writer, sheet_name="양")
+average_df.to_excel(writer, sheet_name="평균")
+writer.save()
