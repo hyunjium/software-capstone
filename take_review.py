@@ -49,7 +49,7 @@ while True:
 review = []
 
 #리뷰 날짜들 review list에 dict로 넣기
-review_date = browser.find_elements(By.CSS_SELECTOR,'.review-time.ng-binding')
+review_date = browser.find_elements(By.CSS_SELECTOR, "span[ng-bind='review.time|since']")
 for each_date in review_date:
     review_dict = {}
     review_dict['date'] = each_date.text
