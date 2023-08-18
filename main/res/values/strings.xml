@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">FoodStar</string>
-    <string name="main_string">특정 음식의 맛집 찾기!</string>
-    <string name="store_name">TextView</string>
-</resources>
